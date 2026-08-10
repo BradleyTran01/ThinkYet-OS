@@ -1,489 +1,1338 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThinkYet OS — Hermes Agent Harness</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=1440, initial-scale=1.0">
+    <title>ThinkYet AI Company — Founder Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.js"></script>
     <style>
         :root {
-            --bg-sidebar: #171717;
-            --bg-chat: #212121;
-            --bg-card: #2f2f2f;
-            --bg-input: #2f2f2f;
-            --border: #383838;
-            --accent: #89b4fa;
-            --text-primary: #ececec;
-            --text-secondary: #b4b4b4;
-            --text-muted: #8e8e8e;
-            --user-msg-bg: #2f2f2f;
-            --agent-msg-bg: #212121;
-            --green: #a6e3a1;
-            --purple: #cba6f7;
-            --orange: #fab387;
+            --bg-page: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --primary-border: #bfdbfe;
+            
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            
+            --radius-card: 14px;
+            --radius-sm: 8px;
+            --shadow-subtle: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-chat);
-            color: var(--text-primary);
-            height: 100vh;
+            background-color: var(--bg-page);
+            color: var(--text-main);
             display: flex;
+            height: 100vh;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Sidebar */
+        /* SIDEBAR (230px) */
         .sidebar {
-            width: 260px;
-            background-color: var(--bg-sidebar);
+            width: 230px;
+            background: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 12px;
+            padding: 16px 12px;
+            flex-shrink: 0;
+            user-select: none;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 8px;
-            margin-bottom: 12px;
-        }
-
-        .brand img {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-        }
-
-        .brand-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .brand-subtitle {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-
-        .new-chat-btn {
-            background-color: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            padding: 10px 14px;
-            border-radius: 8px;
+        .brand-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: background 0.2s;
+            padding: 4px 8px 20px 8px;
         }
 
-        .new-chat-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
-
-        .sidebar-section {
-            margin-top: 24px;
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .section-title {
-            font-size: 0.75rem;
-            font-weight: 600;
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .brand-text h1 { font-size: 0.95rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .brand-text p { font-size: 0.72rem; color: var(--text-muted); }
+
+        .sidebar-collapse {
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0 8px 8px 8px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
         }
+        .sidebar-collapse:hover { background: var(--border-light); }
 
-        .agent-list {
+        .nav-scroll {
+            flex: 1;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 16px;
         }
 
-        .agent-item {
+        .nav-group-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 0 10px 4px 10px;
+        }
+
+        .nav-list { display: flex; flex-direction: column; gap: 2px; }
+
+        .nav-item {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
+            border-radius: var(--radius-sm);
             font-size: 0.85rem;
+            font-weight: 500;
             color: var(--text-secondary);
-            transition: all 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
         }
 
-        .agent-item:hover, .agent-item.active {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: var(--text-primary);
+        .nav-item:hover { background: var(--border-light); color: var(--text-main); }
+        
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
         }
 
-        .agent-badge {
-            margin-left: auto;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(137, 180, 250, 0.15);
-            color: var(--accent);
+        .nav-icon { width: 18px; height: 18px; opacity: 0.8; }
+        .nav-item.active .nav-icon { opacity: 1; color: var(--primary); }
+
+        .sidebar-footer {
+            padding-top: 12px;
+            border-top: 1px solid var(--border-light);
         }
 
-        /* Main Chat Area */
-        .chat-container {
+        .system-pill {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .system-pill-text { font-size: 0.78rem; font-weight: 600; }
+        .system-pill-sub { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+
+        /* MAIN WRAPPER */
+        .main-wrapper {
             flex: 1;
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
-        .chat-header {
-            height: 60px;
+        /* TOP HEADER (Sticky) */
+        .top-header {
+            height: 64px;
+            background: var(--bg-sidebar);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
-            background-color: var(--bg-chat);
+            padding: 0 28px;
+            flex-shrink: 0;
         }
 
-        .model-selector {
+        .global-search {
+            position: relative;
+            width: 480px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-page);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 40px 8px 38px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px var(--primary-light); }
+
+        .search-shortcut {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background-color: var(--bg-sidebar);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 0.85rem;
-            font-weight: 600;
+            gap: 16px;
         }
 
-        .chat-feed {
+        .icon-btn {
+            position: relative;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+        }
+        .icon-btn:hover { background: var(--border-light); }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        .user-profile:hover { background: var(--border-light); }
+
+        .avatar-img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info h4 { font-size: 0.82rem; font-weight: 600; color: var(--text-main); line-height: 1.1; }
+        .user-info p { font-size: 0.72rem; color: var(--text-muted); }
+
+        /* BODY LAYOUT (Content + Right Panel) */
+        .body-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .content-area {
             flex: 1;
             overflow-y: auto;
-            padding: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
             gap: 24px;
         }
 
-        .message {
-            display: flex;
-            gap: 16px;
-            max-width: 850px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .user-avatar { background-color: #585b70; color: #fff; }
-        .hermes-avatar { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #11111b; }
-
-        .msg-content {
-            flex: 1;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        .msg-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-
-        .msg-author { font-weight: 600; font-size: 0.9rem; }
-        .msg-time { font-size: 0.75rem; color: var(--text-muted); }
-
-        /* Thought & Tool Trace Blocks */
-        .trace-card {
-            background-color: #181818;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin: 12px 0;
-            overflow: hidden;
-        }
-
-        .trace-header {
-            background-color: #262626;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .trace-body {
-            padding: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.82rem;
-            color: var(--green);
-            white-space: pre-wrap;
-            line-height: 1.4;
-        }
-
-        /* Input Area */
-        .input-container {
-            padding: 16px 24px 24px 24px;
-            max-width: 850px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .input-box {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        textarea {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 0.95rem;
-            resize: none;
-            height: 48px;
-            outline: none;
-        }
-
-        .input-controls {
+        /* PAGE HEADER */
+        .page-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .chip-group {
+        .greeting h2 { font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
+        .greeting p { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+
+        .header-buttons { display: flex; gap: 10px; }
+
+        .btn {
             display: flex;
-            gap: 8px;
-        }
-
-        .chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            border: 1px solid transparent;
+            transition: all 0.15s;
         }
 
-        .chip:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        .btn-secondary { background: white; border-color: var(--border); color: var(--text-main); }
+        .btn-secondary:hover { background: var(--border-light); }
+
+        .btn-icon-only { padding: 8px; border-radius: 8px; background: white; border: 1px solid var(--border); }
+
+        /* KPI ROW (5 Cards) */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
         }
 
-        .send-btn {
-            background: var(--accent);
-            color: #11111b;
-            border: none;
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 16px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+
+        .kpi-value-group {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .kpi-val { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+        .kpi-trend { font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--success); }
+
+        .sparkline-svg { width: 60px; height: 24px; stroke: var(--primary); fill: none; stroke-width: 2; }
+
+        .kpi-icon-circle {
             width: 32px;
             height: 32px;
-            border-radius: 8px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-weight: 700;
         }
+        .icon-circle-green { background: #dcfce7; color: var(--success); }
+        .icon-circle-orange { background: #fef3c7; color: var(--warning); }
+        .icon-circle-red { background: #fee2e2; color: var(--danger); }
+
+        /* MAIN GRID (55% / 45%) */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 20px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .card-link { font-size: 0.78rem; font-weight: 600; color: var(--primary); text-decoration: none; }
+        .card-link:hover { text-decoration: underline; }
+
+        /* CURRENT PRIORITY CARD */
+        .priority-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .priority-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .priority-icon-box {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .priority-info h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
+        .priority-info p { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; }
+
+        .badge-priority {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--primary-light);
+            color: var(--primary);
+            margin-left: 8px;
+        }
+
+        .progress-group { display: flex; flex-direction: column; gap: 6px; }
+        
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .priority-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .meta-item label { font-size: 0.7rem; color: var(--text-muted); display: block; }
+        .meta-item span { font-size: 0.82rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+
+        .priority-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .current-step { font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+
+        /* NEEDS YOUR DECISION CARD */
+        .decision-box {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .decision-question { font-size: 1.05rem; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+
+        .ai-recommendation-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .stance-result {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .stance-yes { font-size: 1.25rem; font-weight: 800; color: var(--success); }
+        .stance-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+        .decision-meta-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.8rem;
+        }
+
+        .decision-meta-row div { display: flex; gap: 8px; }
+        .decision-meta-row span { font-weight: 600; color: var(--text-main); }
+
+        .decision-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-decision-primary {
+            flex: 1;
+            background: var(--success);
+            color: white;
+            justify-content: center;
+        }
+        .btn-decision-primary:hover { background: #15803d; }
+
+        /* LIST STYLE (Completions & Activity) */
+        .list-container { display: flex; flex-direction: column; gap: 14px; }
+
+        .list-item {
+            display: flex;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .list-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .list-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .icon-check-green { background: #dcfce7; color: var(--success); }
+
+        .list-content h4 { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+        .list-content p { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.3; }
+
+        .list-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .tag-pill {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .tag-green { background: #dcfce7; color: var(--success); }
+        .tag-blue { background: #dbeafe; color: var(--primary); }
+
+        /* RIGHT PANEL (320px) */
+        .right-panel {
+            width: 320px;
+            background: var(--bg-sidebar);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex-shrink: 0;
+        }
+
+        .health-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .health-item { display: flex; flex-direction: column; gap: 4px; }
+        .health-label-row { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 500; }
+        .health-label-row span:last-child { font-weight: 600; }
+
+        .health-bar-bg { width: 100%; height: 5px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .health-bar-fill { height: 100%; border-radius: 3px; }
+
+        .bar-blue { background: var(--primary); }
+        .bar-green { background: var(--success); }
+        .bar-orange { background: var(--warning); }
+        .bar-red { background: var(--danger); }
+
+        /* ACTIVE AGENTS */
+        .agent-row-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .agent-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .agent-info-group { display: flex; align-items: center; gap: 10px; }
+
+        .agent-avatar-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .agent-name-sub h5 { font-size: 0.82rem; font-weight: 600; color: var(--text-main); }
+        .agent-name-sub p { font-size: 0.72rem; color: var(--text-muted); }
+
+        .agent-status-tag { font-size: 0.72rem; font-weight: 600; color: var(--success); }
+        .status-reviewing { color: var(--primary); }
+        .status-available { color: var(--text-muted); }
+
+        /* UPCOMING SYNC */
+        .upcoming-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .upcoming-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .upcoming-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .upcoming-details h5 { font-size: 0.82rem; font-weight: 600; }
+        .upcoming-details p { font-size: 0.72rem; color: var(--text-muted); }
+
+        .attendees-avatars { display: flex; margin-left: auto; }
+        .attendee-img { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; margin-left: -6px; }
+
+        /* BOTTOM ACTIVE RUNS STRIP */
+        .running-strip {
+            height: 52px;
+            background: var(--bg-sidebar);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .strip-label { font-size: 0.78rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+        .count-badge { background: #dcfce7; color: var(--success); font-size: 0.7rem; padding: 1px 6px; border-radius: 10px; }
+
+        .strip-cards { display: flex; gap: 16px; flex: 1; margin: 0 24px; overflow-x: auto; }
+
+        .strip-card {
+            background: var(--bg-page);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 220px;
+        }
+
+        .strip-card-info h6 { font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+        .strip-card-info p { font-size: 0.68rem; color: var(--text-muted); }
+
+        .strip-mini-bar { width: 45px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; }
+        .strip-mini-fill { height: 100%; background: var(--primary); }
+
+        .strip-link { font-size: 0.78rem; font-weight: 600; color: var(--primary); text-decoration: none; white-space: nowrap; }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="brand">
-            <img src="logo.png" alt="ThinkYet Logo">
-            <div>
-                <div class="brand-title">ThinkYet OS</div>
-                <div class="brand-subtitle">Hermes AI Runtime</div>
+    <!-- LEFT SIDEBAR (230px) -->
+    <aside class="sidebar">
+        <div class="brand-header">
+            <div class="brand-logo">
+                <div class="brand-icon">T</div>
+                <div class="brand-text">
+                    <h1>ThinkYet</h1>
+                    <p>AI Company</p>
+                </div>
+            </div>
+            <i data-lucide="chevrons-left" class="sidebar-collapse nav-icon"></i>
+        </div>
+
+        <div class="nav-scroll">
+            <div class="nav-group">
+                <div class="nav-list">
+                    <a class="nav-item active">
+                        <i data-lucide="home" class="nav-icon"></i>
+                        <span>Home</span>
+                    </a>
+                    <a class="nav-item">
+                        <i data-lucide="target" class="nav-icon"></i>
+                        <span>Goals</span>
+                    </a>
+                    <a class="nav-item">
+                        <i data-lucide="users" class="nav-icon"></i>
+                        <span>Agents</span>
+                    </a>
+                    <a class="nav-item">
+                        <i data-lucide="check-square" class="nav-icon"></i>
+                        <span>Tasks</span>
+                    </a>
+                    <a class="nav-item">
+                        <i data-lucide="git-pull-request" class="nav-icon"></i>
+                        <span>Decisions</span>
+                    </a>
+                    <a class="nav-item">
+                        <i data-lucide="book-open" class="nav-icon"></i>
+                        <span>Knowledge</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Product</div>
+                <div class="nav-list">
+                    <a class="nav-item"><i data-lucide="rss" class="nav-icon"></i><span>Feed</span></a>
+                    <a class="nav-item"><i data-lucide="hash" class="nav-icon"></i><span>Topics</span></a>
+                    <a class="nav-item"><i data-lucide="message-square" class="nav-icon"></i><span>Debates</span></a>
+                    <a class="nav-item"><i data-lucide="messages-square" class="nav-icon"></i><span>Comments</span></a>
+                    <a class="nav-item"><i data-lucide="search" class="nav-icon"></i><span>Search</span></a>
+                    <a class="nav-item"><i data-lucide="user" class="nav-icon"></i><span>Profile</span></a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-group-title">Company</div>
+                <div class="nav-list">
+                    <a class="nav-item"><i data-lucide="box" class="nav-icon"></i><span>Product</span></a>
+                    <a class="nav-item"><i data-lucide="layout-grid" class="nav-icon"></i><span>Design System</span></a>
+                    <a class="nav-item"><i data-lucide="code" class="nav-icon"></i><span>Engineering</span></a>
+                    <a class="nav-item"><i data-lucide="trending-up" class="nav-icon"></i><span>Growth</span></a>
+                    <a class="nav-item"><i data-lucide="shield-check" class="nav-icon"></i><span>Safety & Trust</span></a>
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-list">
+                    <a class="nav-item"><i data-lucide="play-circle" class="nav-icon"></i><span>Runs</span></a>
+                    <a class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i><span>Lessons</span></a>
+                    <a class="nav-item"><i data-lucide="file-text" class="nav-icon"></i><span>Reports</span></a>
+                </div>
+            </div>
+
+            <div class="nav-group" style="margin-top: auto;">
+                <div class="nav-list">
+                    <a class="nav-item"><i data-lucide="settings" class="nav-icon"></i><span>Settings</span></a>
+                    <a class="nav-item"><i data-lucide="layers" class="nav-icon"></i><span>Integrations</span></a>
+                </div>
             </div>
         </div>
 
-        <button class="new-chat-btn">
-            <span>+ New Task Session</span>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">⌘K</span>
-        </button>
-
-        <div class="sidebar-section">
-            <div class="section-title">Active AI Agents</div>
-            <div class="agent-list">
-                <div class="agent-item active">
-                    <span>👑 Chief of Staff</span>
-                    <span class="agent-badge">Active</span>
+        <div class="sidebar-footer">
+            <div class="system-pill">
+                <div>
+                    <div class="system-pill-text">ThinkYet OS</div>
+                    <div class="system-pill-sub"><span class="status-dot"></span> v2.1.0 • Active</div>
                 </div>
-                <div class="agent-item">
-                    <span>🛡️ Product Guardian</span>
-                    <span class="agent-badge">A3 Policy</span>
-                </div>
-                <div class="agent-item">
-                    <span>💻 Staff Engineer</span>
-                    <span class="agent-badge">Runtime</span>
-                </div>
-                <div class="agent-item">
-                    <span>🔍 Independent Reviewer</span>
-                    <span class="agent-badge">QA Gate</span>
-                </div>
+                <i data-lucide="chevron-right" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
             </div>
         </div>
+    </aside>
 
-        <div class="sidebar-section">
-            <div class="section-title">Canonical Artifacts</div>
-            <div class="agent-list">
-                <div class="agent-item">📄 AUTHORITY_MAP.yaml</div>
-                <div class="agent-item">📄 AGENT_ROUTING.yaml</div>
-                <div class="agent-item">📄 RISK_REGISTER.yaml</div>
-                <div class="agent-item">📄 CONFLICT_REGISTER.yaml</div>
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+        
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <div class="global-search">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" class="search-input" placeholder="Ask ThinkYet AI Company...">
+                <span class="search-shortcut">⌘K</span>
             </div>
-        </div>
-    </div>
 
-    <!-- Main Chat Area -->
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="model-selector">
-                <span style="color: var(--accent);">✦</span>
-                <span>Hermes-2-Pro-Llama-3-8B (ThinkYet Harness)</span>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--green); font-weight: 500;">
-                ● OS Loader Ready (A0–A7 Rules Active)
-            </div>
-        </div>
-
-        <div class="chat-feed" id="chatFeed">
-            <!-- System Welcome Message -->
-            <div class="message">
-                <div class="avatar hermes-avatar">H</div>
-                <div class="msg-content">
-                    <div class="msg-header">
-                        <span class="msg-author">Hermes ThinkYet Runtime</span>
-                        <span class="msg-time">Vừa xong</span>
+            <div class="header-actions">
+                <button class="icon-btn">
+                    <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <button class="icon-btn">
+                    <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
+                </button>
+                <div class="user-profile">
+                    <img src="logo.png" alt="Bradley Tran" class="avatar-img">
+                    <div class="user-info">
+                        <h4>Bradley Tran</h4>
+                        <p>Founder</p>
                     </div>
-                    <div>
-                        Xin chào Founder. Tôi là **Hermes ThinkYet Runtime** — hệ thống Agent Harness chuyên vận hành **ThinkYet OS**.
-                        <br><br>
-                        Tất cả các truy vấn của bạn sẽ được kiểm soát tự động bởi **OS Loader**, **Authority Resolver (A0-A7)** và **Tool Capability Gateway**.
-                    </div>
                 </div>
             </div>
+        </header>
+
+        <!-- BODY CONTAINER -->
+        <div class="body-container">
+            
+            <!-- MAIN CONTENT AREA -->
+            <main class="content-area">
+                
+                <!-- PAGE HEADER -->
+                <div class="page-header">
+                    <div class="greeting">
+                        <h2>Good morning, Bradley 👋</h2>
+                        <p>Here's what ThinkYet AI Company is focused on today.</p>
+                    </div>
+                    <div class="header-buttons">
+                        <button class="btn btn-primary">
+                            <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                            <span>New Goal</span>
+                        </button>
+                        <button class="btn btn-secondary">
+                            <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--primary);"></i>
+                            <span>Ask AI</span>
+                        </button>
+                        <button class="btn-icon-only">
+                            <i data-lucide="more-horizontal" style="width: 16px; height: 16px; color: var(--text-secondary);"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI ROW (5 Cards) -->
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Product readiness</div>
+                        <div class="kpi-value-group">
+                            <div>
+                                <div class="kpi-val">72%</div>
+                                <div class="kpi-trend trend-up">↑ 8% vs yesterday</div>
+                            </div>
+                            <svg class="sparkline-svg" viewBox="0 0 60 24">
+                                <path d="M0 20 Q15 15, 30 18 T60 4" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Goals active</div>
+                        <div class="kpi-value-group">
+                            <div>
+                                <div class="kpi-val">3</div>
+                                <div class="kpi-trend trend-up" style="color: var(--text-secondary);">● 2 on track</div>
+                            </div>
+                            <div class="kpi-icon-circle icon-circle-green">
+                                <i data-lucide="target" style="width: 16px; height: 16px;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Decisions needed</div>
+                        <div class="kpi-value-group">
+                            <div>
+                                <div class="kpi-val">1</div>
+                                <div class="kpi-trend" style="color: var(--warning);">● Your input required</div>
+                            </div>
+                            <div class="kpi-icon-circle icon-circle-orange">
+                                <i data-lucide="gavel" style="width: 16px; height: 16px;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Risks require attention</div>
+                        <div class="kpi-value-group">
+                            <div>
+                                <div class="kpi-val">2</div>
+                                <div class="kpi-trend" style="color: var(--danger);">1 high • 1 medium</div>
+                            </div>
+                            <div class="kpi-icon-circle icon-circle-red">
+                                <i data-lucide="shield-alert" style="width: 16px; height: 16px;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Today's cost</div>
+                        <div class="kpi-value-group">
+                            <div>
+                                <div class="kpi-val">$4.62</div>
+                                <div class="kpi-trend trend-down">↓ 12% vs yesterday</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN GRID (55% / 45%) -->
+                <div class="main-grid">
+                    
+                    <!-- LEFT COLUMN -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        
+                        <!-- CURRENT PRIORITY -->
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div class="card-title">Current Priority</div>
+                                <a class="card-link">View all goals →</a>
+                            </div>
+
+                            <div class="priority-content">
+                                <div class="priority-header">
+                                    <div class="priority-icon-box">
+                                        <i data-lucide="message-square" style="width: 22px; height: 22px;"></i>
+                                    </div>
+                                    <div class="priority-info">
+                                        <div style="display: flex; align-items: center;">
+                                            <h3>Complete Comments System</h3>
+                                            <span class="badge-priority">HIGH PRIORITY</span>
+                                        </div>
+                                        <p>Ready for Merge</p>
+                                    </div>
+                                </div>
+
+                                <div class="progress-group">
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: 82%;"></div>
+                                    </div>
+                                    <div class="progress-text">
+                                        <span>12 / 15 checks passed</span>
+                                        <span style="font-weight: 700; color: var(--text-main);">82%</span>
+                                    </div>
+                                </div>
+
+                                <div class="priority-meta-grid">
+                                    <div class="meta-item">
+                                        <label>Owner</label>
+                                        <span><i data-lucide="cpu" style="width: 14px; height: 14px; color: var(--primary);"></i> Engineering Agent</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <label>Area</label>
+                                        <span><i data-lucide="messages-square" style="width: 14px; height: 14px; color: var(--text-muted);"></i> Comments</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <label>Target</label>
+                                        <span><i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--success);"></i> Ready for Merge</span>
+                                    </div>
+                                </div>
+
+                                <div class="priority-footer">
+                                    <div class="current-step">
+                                        <span class="status-dot"></span>
+                                        <span>Current step: <strong>Testing cross-surface visibility</strong></span>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                                        <span>Open Goal</span>
+                                        <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RECENT COMPLETIONS -->
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div class="card-title">
+                                    <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: var(--success);"></i>
+                                    <span>Recent Completions</span>
+                                </div>
+                                <a class="card-link">View all →</a>
+                            </div>
+
+                            <div class="list-container">
+                                <div class="list-item">
+                                    <div class="list-icon icon-check-green">
+                                        <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <h4>Comments permission audit completed</h4>
+                                        <p>Reviewer found 2 issues. Both fixed and tests now pass.</p>
+                                        <div class="list-meta">
+                                            <span><i data-lucide="cpu" style="width: 12px; height: 12px;"></i> Engineering Agent • 12 min ago</span>
+                                            <span class="tag-pill tag-green">High impact</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="list-item">
+                                    <div class="list-icon icon-check-green">
+                                        <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <h4>Feed card redesigned</h4>
+                                        <p>Matches ThinkYet Design System. Visual regression passed.</p>
+                                        <div class="list-meta">
+                                            <span><i data-lucide="palette" style="width: 12px; height: 12px;"></i> Design Agent • 36 min ago</span>
+                                            <span class="tag-pill tag-blue">Design</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="list-item">
+                                    <div class="list-icon icon-check-green">
+                                        <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <h4>Search relevance improvements</h4>
+                                        <p>Added topic awareness and stance context.</p>
+                                        <div class="list-meta">
+                                            <span><i data-lucide="search" style="width: 12px; height: 12px;"></i> Search Agent • 1h ago</span>
+                                            <span class="tag-pill tag-blue">Improvement</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        
+                        <!-- NEEDS YOUR DECISION -->
+                        <div class="card" style="border-color: var(--primary-border); background: #faf5ff;">
+                            <div class="card-title-bar">
+                                <div class="card-title" style="color: var(--warning);">
+                                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                                    <span>Needs your decision</span>
+                                    <span style="font-size: 0.75rem; background: var(--warning-light); color: var(--warning); padding: 1px 6px; border-radius: 10px;">1</span>
+                                </div>
+                                <a class="card-link">View all →</a>
+                            </div>
+
+                            <div class="decision-box">
+                                <div class="decision-question">Should public profiles be indexed by Google?</div>
+                                
+                                <div class="ai-recommendation-chip">
+                                    <i data-lucide="bot" style="width: 12px; height: 12px; color: var(--primary);"></i>
+                                    <span>AI RECOMMENDATION</span>
+                                </div>
+
+                                <div class="stance-result">
+                                    <span class="stance-yes">YES</span>
+                                    <span class="stance-sub">High confidence</span>
+                                </div>
+
+                                <div class="decision-meta-row">
+                                    <div>Impact: <span>Medium</span></div>
+                                    <div>Reversible: <span>Yes</span></div>
+                                    <div>Effort: <span>Low</span></div>
+                                </div>
+
+                                <div class="decision-actions">
+                                    <button class="btn btn-secondary" style="flex: 1; justify-content: center;">Review details</button>
+                                    <button class="btn btn-decision-primary">Make Decision</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ACTIVITY FEED -->
+                        <div class="card">
+                            <div class="card-title-bar">
+                                <div class="card-title">Activity Feed</div>
+                                <a class="card-link">View all →</a>
+                            </div>
+
+                            <div class="list-container">
+                                <div class="list-item">
+                                    <div class="list-icon" style="background: var(--primary-light); color: var(--primary);">
+                                        <i data-lucide="cpu" style="width: 12px; height: 12px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <h4 style="font-size: 0.8rem;">Engineering Agent</h4>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted);">8m ago</span>
+                                        </div>
+                                        <p style="font-size: 0.78rem;">Fixed server-side comment authorization.</p>
+                                    </div>
+                                </div>
+
+                                <div class="list-item">
+                                    <div class="list-icon" style="background: #f1f5f9; color: var(--text-secondary);">
+                                        <i data-lucide="user-check" style="width: 12px; height: 12px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <h4 style="font-size: 0.8rem;">Reviewer</h4>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted);">15m ago</span>
+                                        </div>
+                                        <p style="font-size: 0.78rem;">Found Profile comment leakage.</p>
+                                    </div>
+                                </div>
+
+                                <div class="list-item">
+                                    <div class="list-icon" style="background: var(--primary-light); color: var(--primary);">
+                                        <i data-lucide="cpu" style="width: 12px; height: 12px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <h4 style="font-size: 0.8rem;">Engineering Agent</h4>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted);">22m ago</span>
+                                        </div>
+                                        <p style="font-size: 0.78rem;">Patched Profile API.</p>
+                                    </div>
+                                </div>
+
+                                <div class="list-item">
+                                    <div class="list-icon" style="background: #dcfce7; color: var(--success);">
+                                        <i data-lucide="shield-check" style="width: 12px; height: 12px;"></i>
+                                    </div>
+                                    <div class="list-content" style="flex: 1;">
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <h4 style="font-size: 0.8rem;">QA Agent</h4>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted);">30m ago</span>
+                                        </div>
+                                        <p style="font-size: 0.78rem;">12 visibility tests passed.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
+
+            <!-- RIGHT PANEL (Company Health & Agents - 320px) -->
+            <aside class="right-panel">
+                
+                <!-- COMPANY HEALTH -->
+                <div>
+                    <div class="card-title-bar">
+                        <div class="card-title">Company Health</div>
+                        <a class="card-link" style="font-size: 0.75rem;">View full report →</a>
+                    </div>
+
+                    <div class="health-list">
+                        <div class="health-item">
+                            <div class="health-label-row">
+                                <span>● Product readiness</span>
+                                <span>72%</span>
+                            </div>
+                            <div class="health-bar-bg"><div class="health-bar-fill bar-blue" style="width: 72%;"></div></div>
+                        </div>
+
+                        <div class="health-item">
+                            <div class="health-label-row">
+                                <span>● Security</span>
+                                <span style="color: var(--success);">Good</span>
+                            </div>
+                            <div class="health-bar-bg"><div class="health-bar-fill bar-green" style="width: 90%;"></div></div>
+                        </div>
+
+                        <div class="health-item">
+                            <div class="health-label-row">
+                                <span>● Design consistency</span>
+                                <span>81%</span>
+                            </div>
+                            <div class="health-bar-bg"><div class="health-bar-fill bar-blue" style="width: 81%;"></div></div>
+                        </div>
+
+                        <div class="health-item">
+                            <div class="health-label-row">
+                                <span>● Tests</span>
+                                <span>92%</span>
+                            </div>
+                            <div class="health-bar-bg"><div class="health-bar-fill bar-green" style="width: 92%;"></div></div>
+                        </div>
+
+                        <div class="health-item">
+                            <div class="health-label-row">
+                                <span>● Admin & moderation</span>
+                                <span>62%</span>
+                            </div>
+                            <div class="health-bar-bg"><div class="health-bar-fill bar-orange" style="width: 62%;"></div></div>
+                        </div>
+
+                        <div class="health-item">
+                            <div class="health-label-row">
+                                <span>● Beta readiness</span>
+                                <span style="color: var(--danger);">Blocked</span>
+                            </div>
+                            <div class="health-bar-bg"><div class="health-bar-fill bar-red" style="width: 35%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIVE AGENTS -->
+                <div>
+                    <div class="card-title-bar">
+                        <div class="card-title">Active Agents</div>
+                        <a class="card-link" style="font-size: 0.75rem;">View all →</a>
+                    </div>
+
+                    <div class="agent-row-list">
+                        <div class="agent-row">
+                            <div class="agent-info-group">
+                                <div class="agent-avatar-box"><i data-lucide="cpu" style="width: 16px; height: 16px;"></i></div>
+                                <div class="agent-name-sub">
+                                    <h5>Engineering</h5>
+                                    <p>Visibility regression tests</p>
+                                </div>
+                            </div>
+                            <div class="agent-status-tag">Working</div>
+                        </div>
+
+                        <div class="agent-row">
+                            <div class="agent-info-group">
+                                <div class="agent-avatar-box" style="color: var(--primary);"><i data-lucide="box" style="width: 16px; height: 16px;"></i></div>
+                                <div class="agent-name-sub">
+                                    <h5>Product</h5>
+                                    <p>Beta checklist review</p>
+                                </div>
+                            </div>
+                            <div class="agent-status-tag status-reviewing">Reviewing</div>
+                        </div>
+
+                        <div class="agent-row">
+                            <div class="agent-info-group">
+                                <div class="agent-avatar-box" style="color: var(--success);"><i data-lucide="shield-check" style="width: 16px; height: 16px;"></i></div>
+                                <div class="agent-name-sub">
+                                    <h5>QA</h5>
+                                    <p>Cross-surface test suite</p>
+                                </div>
+                            </div>
+                            <div class="agent-status-tag">Working</div>
+                        </div>
+
+                        <div class="agent-row">
+                            <div class="agent-info-group">
+                                <div class="agent-avatar-box" style="color: var(--text-muted);"><i data-lucide="palette" style="width: 16px; height: 16px;"></i></div>
+                                <div class="agent-name-sub">
+                                    <h5>Design</h5>
+                                    <p>Ready for tasks</p>
+                                </div>
+                            </div>
+                            <div class="agent-status-tag status-available">Available</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPCOMING SYNC -->
+                <div>
+                    <div class="card-title-bar">
+                        <div class="card-title">Upcoming</div>
+                        <a class="card-link" style="font-size: 0.75rem;">View calendar →</a>
+                    </div>
+
+                    <div class="upcoming-list">
+                        <div class="upcoming-item">
+                            <div class="upcoming-icon"><i data-lucide="calendar" style="width: 16px; height: 16px;"></i></div>
+                            <div class="upcoming-details">
+                                <h5>Product & Engineering Sync</h5>
+                                <p>Today, 2:00 PM</p>
+                            </div>
+                        </div>
+
+                        <div class="upcoming-item">
+                            <div class="upcoming-icon"><i data-lucide="calendar" style="width: 16px; height: 16px;"></i></div>
+                            <div class="upcoming-details">
+                                <h5>Beta Readiness Review</h5>
+                                <p>Tomorrow, 10:00 AM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </aside>
+
         </div>
 
-        <!-- Input Box -->
-        <div class="input-container">
-            <div class="input-box">
-                <textarea id="userInput" placeholder="Giao Goal hoặc câu lệnh cho Hermes ThinkYet Runtime..."></textarea>
-                <div class="input-controls">
-                    <div class="chip-group">
-                        <div class="chip" onclick="quickTask('Kiểm tra và xác thực Visibility Gate cho Comments API')">🔍 Check Comments Gate</div>
-                        <div class="chip" onclick="quickTask('Biên dịch KNOWLEDGE_PACK cho Task mới')">📦 Compile Knowledge Pack</div>
-                        <div class="chip" onclick="quickTask('Chạy Audit các xung đột A0-A7 trong Conflict Register')">⚔️ Resolve Conflicts</div>
+        <!-- NOW RUNNING BAR (Persistent Bottom Strip) -->
+        <footer class="running-strip">
+            <div class="strip-label">
+                <span>Now running</span>
+                <span class="count-badge">4</span>
+            </div>
+
+            <div class="strip-cards">
+                <div class="strip-card">
+                    <i data-lucide="cpu" style="width: 14px; height: 14px; color: var(--primary);"></i>
+                    <div class="strip-card-info">
+                        <h6>Visibility regression tests</h6>
+                        <p>Engineering Agent</p>
                     </div>
-                    <button class="send-btn" onclick="sendMessage()">➔</button>
+                    <div class="strip-mini-bar"><div class="strip-mini-fill" style="width: 65%;"></div></div>
+                </div>
+
+                <div class="strip-card">
+                    <i data-lucide="box" style="width: 14px; height: 14px; color: var(--primary);"></i>
+                    <div class="strip-card-info">
+                        <h6>Beta checklist review</h6>
+                        <p>Product Agent</p>
+                    </div>
+                    <div class="strip-mini-bar"><div class="strip-mini-fill" style="width: 40%;"></div></div>
+                </div>
+
+                <div class="strip-card">
+                    <i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--success);"></i>
+                    <div class="strip-card-info">
+                        <h6>Cross-surface test suite</h6>
+                        <p>QA Agent</p>
+                    </div>
+                    <div class="strip-mini-bar"><div class="strip-mini-fill" style="width: 70%; background: var(--success);"></div></div>
                 </div>
             </div>
-        </div>
+
+            <a class="strip-link">View all runs →</a>
+        </footer>
+
     </div>
 
     <script>
-        function quickTask(text) {
-            document.getElementById('userInput').value = text;
-            sendMessage();
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const feed = document.getElementById('chatFeed');
-
-            // Append User Message
-            const userMsgHtml = `
-                <div class="message">
-                    <div class="avatar user-avatar">F</div>
-                    <div class="msg-content">
-                        <div class="msg-header">
-                            <span class="msg-author">Founder</span>
-                            <span class="msg-time">Vừa xong</span>
-                        </div>
-                        <div>${text}</div>
-                    </div>
-                </div>
-            `;
-            feed.insertAdjacentHTML('beforeend', userMsgHtml);
-            input.value = '';
-            feed.scrollTop = feed.scrollHeight;
-
-            // Call Hermes Python Core API directly
-            fetch('/api/run_hermes_task', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: text })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const traceHtml = `
-                    <div class="message">
-                        <div class="avatar hermes-avatar">H</div>
-                        <div class="msg-content">
-                            <div class="msg-header">
-                                <span class="msg-author">Hermes Core (${data.task_id})</span>
-                                <span class="msg-time">State: ${data.state}</span>
-                            </div>
-
-                            <div class="trace-card">
-                                <div class="trace-header">⚙️ HERMES XML PARSER (utils.validate_and_extract_tool_calls)</div>
-                                <div class="trace-body">${JSON.stringify(data.hermes_core.parsed_tool_calls, null, 2)}</div>
-                            </div>
-
-                            <div class="trace-card">
-                                <div class="trace-header">🛡️ TOOL GATEWAY & CONTEXT COMPILER</div>
-                                <div class="trace-body">RBAC Check: ${data.thinkyet_os.rbac_check} | Context Budget: ${data.thinkyet_os.knowledge_pack.max_context_bytes} bytes</div>
-                            </div>
-
-                            <div>
-                                Đã hoàn thành thực thi trực tiếp trên lõi **Hermes Python Core** cho Goal: **"${data.query}"**.
-                                <br><br>
-                                ✅ **Xác thực lõi Hermes:**
-                                <ul>
-                                    <li>Lõi <b>prompter.py</b> & <b>sys_prompt.yml</b> đã tự động nạp System Prompt.</li>
-                                    <li>Lõi <b>utils.py</b> đã parse đúng thẻ XML <code>&lt;tool_call&gt;</code> từ câu trả lời của mô hình.</li>
-                                    <li>Lớp <b>/company/ Context Compiler</b> bảo đảm đúng quy tắc <b>A3 Visibility Invariant</b>.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                feed.insertAdjacentHTML('beforeend', traceHtml);
-                feed.scrollTop = feed.scrollHeight;
-            })
-            .catch(err => {
-                console.error(err);
-            });
-        }
+        lucide.createIcons();
     </script>
 </body>
 </html>
