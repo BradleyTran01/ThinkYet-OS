@@ -24,9 +24,36 @@ tool_gateway = ToolCapabilityGateway()
 task_engine = TaskEngine()
 goal_engine = GoalEngine()
 
-@app.route("/api/goals", methods=["GET"])
-def get_goals():
+@app.route("/api/goals", methods=["GET", "POST"])
+def goals_handler():
+    if request.method == "POST":
+        data = request.json or {}
+        new_goal = GoalContract(
+            goal_id=f"GOAL-{len(goal_engine.goals) + 1:02d}",
+            title=data.get("title", "New Goal"),
+            description=data.get("description", "Goal description"),
+            owner_agent=data.get("owner_agent", "Engineering Agent"),
+            priority=data.get("priority", "HIGH"),
+            status="ACTIVE",
+            progress_percentage=0,
+            milestones=[Milestone(id="M1", title="Initial milestone setup", status="IN_PROGRESS", progress_percentage=10)]
+        )
+        goal_engine.create_goal(new_goal)
+        return jsonify({"status": "success", "goal": new_goal.dict()})
     return jsonify(goal_engine.get_all_goals())
+
+@app.route("/api/decisions", methods=["POST"])
+def record_decision():
+    data = request.json or {}
+    stance = data.get("stance", "YES")
+    question = data.get("question", "Should public profiles be indexed by Google?")
+    return jsonify({
+        "status": "success",
+        "stance": stance,
+        "question": question,
+        "recorded_by": "Founder",
+        "authority_level": "A1_APPROVED"
+    })
 
 @app.route("/")
 def index():

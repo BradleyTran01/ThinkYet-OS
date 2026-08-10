@@ -696,6 +696,35 @@
         .strip-mini-bar { width: 45px; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; }
         .strip-mini-fill { height: 100%; background: var(--primary); }
 
+        /* MODALS & OVERLAYS STYLING */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-card);
+            width: 520px; max-width: 90vw; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; gap: 16px;
+        }
+
+        .modal-header { display: flex; align-items: center; justify-content: space-between; }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 700; }
+        .modal-close { cursor: pointer; color: var(--text-muted); }
+        .modal-close:hover { color: var(--text-main); }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
+        .form-input {
+            width: 100%; background: var(--bg-page); border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 12px; font-size: 0.85rem; outline: none; font-family: inherit;
+        }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
         /* RESPONSIVE MEDIA QUERIES */
         @media (max-width: 1280px) {
             .right-panel { display: none; }
@@ -855,11 +884,11 @@
                         <p>Here's what ThinkYet AI Company is focused on today.</p>
                     </div>
                     <div class="header-buttons">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="openNewGoalModal()">
                             <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
                             <span>New Goal</span>
                         </button>
-                        <button class="btn btn-secondary">
+                        <button class="btn btn-secondary" onclick="focusCommandBar()">
                             <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--primary);"></i>
                             <span>Ask AI</span>
                         </button>
@@ -1091,7 +1120,7 @@
 
                                 <div class="decision-actions">
                                     <button class="btn btn-secondary" style="flex: 1; justify-content: center;">Review details</button>
-                                    <button class="btn btn-decision-primary">Make Decision</button>
+                                    <button class="btn btn-decision-primary" onclick="makeFounderDecision('YES')">Make Decision</button>
                                 </div>
                             </div>
                         </div>
@@ -1350,8 +1379,110 @@
 
     </div>
 
+    <!-- CREATE GOAL MODAL -->
+    <div class="modal-overlay" id="goalModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Create New Founder Goal 🎯</h3>
+                <i data-lucide="x" class="modal-close" onclick="closeNewGoalModal()"></i>
+            </div>
+            <div class="form-group">
+                <label>Goal Title</label>
+                <input type="text" class="form-input" id="goalTitleInput" placeholder="e.g. Complete Comments System">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" class="form-input" id="goalDescInput" placeholder="Detailed goal objective & acceptance criteria">
+            </div>
+            <div class="form-group">
+                <label>Owner Agent</label>
+                <input type="text" class="form-input" id="goalOwnerInput" value="Engineering Agent">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNewGoalModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitNewGoal()">Create Goal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
+
+        // Keyboard Shortcut ⌘K / Ctrl+K
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                focusCommandBar();
+            }
+        });
+
+        function focusCommandBar() {
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.placeholder = "Enter command for Hermes ThinkYet Runtime...";
+            }
+        }
+
+        // Global Command Bar Submit on Enter
+        document.querySelector('.search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query) {
+                    fetch('/api/run_hermes_task', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: query })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(`🚀 Hermes Task Executed!\nTask ID: ${data.task_id}\nState: ${data.state}\nQuery: ${data.query}`);
+                        this.value = '';
+                    });
+                }
+            }
+        });
+
+        // Modal Controls
+        function openNewGoalModal() {
+            document.getElementById('goalModal').classList.add('active');
+        }
+
+        function closeNewGoalModal() {
+            document.getElementById('goalModal').classList.remove('active');
+        }
+
+        function submitNewGoal() {
+            const title = document.getElementById('goalTitleInput').value.trim();
+            const description = document.getElementById('goalDescInput').value.trim();
+            const owner_agent = document.getElementById('goalOwnerInput').value.trim();
+
+            if (!title) return;
+
+            fetch('/api/goals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, owner_agent, priority: 'HIGH' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(`🎯 Goal Created Successfully!\nGoal ID: ${data.goal.goal_id}\nTitle: ${data.goal.title}`);
+                closeNewGoalModal();
+            });
+        }
+
+        // Decision Submission
+        function makeFounderDecision(stance) {
+            fetch('/api/decisions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stance: stance, question: 'Should public profiles be indexed by Google?' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(`✅ Founder Decision Recorded!\nStance: ${data.stance}\nAuthority Level: ${data.authority_level}`);
+            });
+        }
     </script>
 </body>
 </html>
