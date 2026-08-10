@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkYet OS — AI Company Runtime</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f111a;
+            --bg-surface: #181a26;
+            --bg-card: #212436;
+            --border: #2e324a;
+            --accent-blue: #89b4fa;
+            --accent-purple: #cba6f7;
+            --text-main: #cdd6f4;
+            --text-muted: #a6adc8;
+            --green: #a6e3a1;
+            --yellow: #f9e2af;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(137, 180, 250, 0.2);
+        }
+
+        .title-group h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-group p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        main {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card-header {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-blue);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent-blue), #74c7ec);
+            color: #11111b;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+
+        .secondary-btn {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .secondary-btn:hover { background: #2a2d45; }
+
+        .terminal-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 350px;
+        }
+
+        .terminal {
+            flex: 1;
+            background-color: #090a0f;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--green);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .log-entry { margin-bottom: 6px; }
+        .log-info { color: var(--accent-blue); }
+        .log-warn { color: var(--yellow); }
+        .log-success { color: var(--green); }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="ThinkYet OS Logo" class="logo-img">
+        <div class="title-group">
+            <h1>ThinkYet OS Dashboard</h1>
+            <p>AI Company Runtime Substrate • Phase 1 Thin Foundation</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="card">
+            <div class="card-header">⚡ Bảng Điều Khiển Goal & Task</div>
+            <div class="input-group">
+                <input type="text" id="goalInput" value="Kiểm tra và xác thực Visibility Gate cho Comments API">
+                <button onclick="runTask()">🚀 Chạy Task Lifecycle</button>
+                <button class="secondary-btn" onclick="checkPolicy()">🔍 Kiểm tra OS Policy</button>
+            </div>
+        </div>
+
+        <div class="card terminal-container">
+            <div class="card-header">🖥️ Nhật ký Runtime Log (Real-time)</div>
+            <div class="terminal" id="terminalLog">
+                <div class="log-entry log-info">[SYSTEM] ThinkYet OS Dashboard initialized.</div>
+                <div class="log-entry log-info">[OS LOADER] Loaded Machine Artifacts: AUTHORITY_MAP.yaml, AGENT_ROUTING.yaml, RISK_REGISTER.yaml</div>
+                <div class="log-entry log-success">[READY] Runtime engine connected & waiting for Founder Goal...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function appendLog(msg, type = 'info') {
+            const terminal = document.getElementById('terminalLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = msg;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function checkPolicy() {
+            appendLog("\n--- THINKYET OS VISIBILITY INVARIANTS ---", "warn");
+            appendLog("• feed_visibility: HIDE_YES_NO_PERCENTAGE_AND_GATED_COMMENTS", "info");
+            appendLog("• detail_visibility_before_stance: HIDE_GATED_COMMENTS_AND_PERCENTAGE", "info");
+            appendLog("• detail_visibility_after_stance: UNLOCK_CANONICAL_RESULTS_AND_DISCUSSION", "success");
+        }
+
+        function runTask() {
+            const goal = document.getElementById('goalInput').value;
+            appendLog(`\n[GOAL ENGINE] Received Goal: "${goal}"`, "warn");
+            
+            setTimeout(() => {
+                appendLog("[TASK ENGINE] Task Created: TASK-WEB-01 | State: QUEUED", "info");
+            }, 300);
+
+            setTimeout(() => {
+                appendLog("[TASK ENGINE] State -> RUNNING", "info");
+                appendLog("[CONTEXT COMPILER] Compiled Knowledge Pack (15360 bytes budget limit)", "info");
+            }, 800);
+
+            setTimeout(() => {
+                appendLog("[TOOL GATEWAY] Permission check for 'repo.read': ALLOWED=True", "info");
+                appendLog("[TASK ENGINE] State -> REVIEW (Independent Reviewer audit)", "warn");
+            }, 1400);
+
+            setTimeout(() => {
+                appendLog("[TASK ENGINE] State -> ACCEPTED (Goal execution successful & verified)", "success");
+                appendLog("[EVIDENCE] Artifacts & diffs attached successfully.", "success");
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
