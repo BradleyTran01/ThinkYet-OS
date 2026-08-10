@@ -6,7 +6,11 @@ import logging
 import datetime
 import xml.etree.ElementTree as ET
 
-from art import text2art
+try:
+    from art import text2art
+except ImportError:
+    def text2art(text):
+        return f"=== {text} ==="
 from logging.handlers import RotatingFileHandler
 
 logging.basicConfig(

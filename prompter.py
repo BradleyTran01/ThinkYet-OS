@@ -57,7 +57,10 @@ class PromptManager:
         else:
             examples = None
 
-        schema_json = json.loads(FunctionCall.schema_json())
+        if hasattr(FunctionCall, "model_json_schema"):
+            schema_json = json.loads(json.dumps(FunctionCall.model_json_schema()))
+        else:
+            schema_json = json.loads(FunctionCall.schema_json())
         #schema = schema_json.get("properties", {})
 
         variables = {

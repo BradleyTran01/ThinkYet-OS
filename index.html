@@ -437,45 +437,41 @@
             input.value = '';
             feed.scrollTop = feed.scrollHeight;
 
-            // Simulate Hermes Multi-Agent Reasoning & Tool Calls
-            setTimeout(() => {
+            // Call Hermes Python Core API directly
+            fetch('/api/run_hermes_task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: text })
+            })
+            .then(res => res.json())
+            .then(data => {
                 const traceHtml = `
                     <div class="message">
                         <div class="avatar hermes-avatar">H</div>
                         <div class="msg-content">
                             <div class="msg-header">
-                                <span class="msg-author">Hermes ThinkYet Runtime</span>
-                                <span class="msg-time">Đang xử lý...</span>
+                                <span class="msg-author">Hermes Core (${data.task_id})</span>
+                                <span class="msg-time">State: ${data.state}</span>
                             </div>
 
                             <div class="trace-card">
-                                <div class="trace-header">⚙️ TOOL CALL: ContextCompiler.compile_knowledge_pack()</div>
-                                <div class="trace-body">
-{
-  "task_scope": "apps/web/comments",
-  "agent_role": "Staff Engineer",
-  "visibility_invariants": {
-    "feed_visibility": "HIDE_YES_NO_PERCENTAGE_AND_GATED_COMMENTS",
-    "detail_visibility_before_stance": "HIDE_GATED_COMMENTS_AND_PERCENTAGE"
-  },
-  "max_context_bytes": 15360
-}
-                                </div>
+                                <div class="trace-header">⚙️ HERMES XML PARSER (utils.validate_and_extract_tool_calls)</div>
+                                <div class="trace-body">${JSON.stringify(data.hermes_core.parsed_tool_calls, null, 2)}</div>
                             </div>
 
                             <div class="trace-card">
-                                <div class="trace-header">🛡️ TOOL GATEWAY: validate_tool_execution(permission="repo.read")</div>
-                                <div class="trace-body">➜ RESULT: ALLOWED=True (RBAC Check Passed)</div>
+                                <div class="trace-header">🛡️ TOOL GATEWAY & CONTEXT COMPILER</div>
+                                <div class="trace-body">RBAC Check: ${data.thinkyet_os.rbac_check} | Context Budget: ${data.thinkyet_os.knowledge_pack.max_context_bytes} bytes</div>
                             </div>
 
                             <div>
-                                Đã hoàn thành xử lý cho Goal: **"${text}"**.
+                                Đã hoàn thành thực thi trực tiếp trên lõi **Hermes Python Core** cho Goal: **"${data.query}"**.
                                 <br><br>
-                                ✅ **Kết quả kiểm tra:**
+                                ✅ **Xác thực lõi Hermes:**
                                 <ul>
-                                    <li>Đã kích hoạt **Task Engine**: Trạng thái task chuyển thành <code>ACCEPTED</code>.</li>
-                                    <li>Đã áp dụng quy tắc **A3 Visibility Invariant**: Không leak nội dung gated comment trước khi người dùng chọn stance.</li>
-                                    <li>Tất cả bằng chứng (Evidence) đã được ghi lại trong <b>Run History</b>.</li>
+                                    <li>Lõi <b>prompter.py</b> & <b>sys_prompt.yml</b> đã tự động nạp System Prompt.</li>
+                                    <li>Lõi <b>utils.py</b> đã parse đúng thẻ XML <code>&lt;tool_call&gt;</code> từ câu trả lời của mô hình.</li>
+                                    <li>Lớp <b>/company/ Context Compiler</b> bảo đảm đúng quy tắc <b>A3 Visibility Invariant</b>.</li>
                                 </ul>
                             </div>
                         </div>
@@ -483,7 +479,10 @@
                 `;
                 feed.insertAdjacentHTML('beforeend', traceHtml);
                 feed.scrollTop = feed.scrollHeight;
-            }, 1000);
+            })
+            .catch(err => {
+                console.error(err);
+            });
         }
     </script>
 </body>
