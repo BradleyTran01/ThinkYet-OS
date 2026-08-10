@@ -166,7 +166,7 @@ if __name__ == "__main__":
     parser.add_argument("--chat_template", type=str, default="chatml", help="Chat template for prompt formatting")
     parser.add_argument("--num_fewshot", type=int, default=None, help="Option to use json mode examples")
     parser.add_argument("--load_in_4bit", type=str, default="False", help="Option to load in 4bit with bitsandbytes")
-    parser.add_argument("--query", type=str, default="I need the current stock price of Tesla (TSLA)")
+    parser.add_argument("--query", type=str, default="Tôi cần biết giá cổ phiếu hiện tại của Tesla (TSLA)")
     parser.add_argument("--max_depth", type=int, default=5, help="Maximum number of recursive iteration")
     args = parser.parse_args()
 

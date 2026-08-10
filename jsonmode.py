@@ -135,7 +135,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_path", type=str, help="Path to the model folder")
     parser.add_argument("--chat_template", type=str, default="chatml", help="Chat template for prompt formatting")
     parser.add_argument("--load_in_4bit", type=str, default="False", help="Option to load in 4bit with bitsandbytes")
-    parser.add_argument("--query", type=str, default="Please return a json object to represent Goku from the anime Dragon Ball Z?")
+    parser.add_argument("--query", type=str, default="Vui lòng trả về một đối tượng JSON đại diện cho nhân vật Goku trong bộ phim 7 viên ngọc rồng?")
     parser.add_argument("--max_depth", type=int, default=5, help="Maximum number of recursive iteration")
     args = parser.parse_args()
 
