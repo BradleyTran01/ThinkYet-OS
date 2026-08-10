@@ -42,17 +42,25 @@ def goals_handler():
         return jsonify({"status": "success", "goal": new_goal.dict()})
     return jsonify(goal_engine.get_all_goals())
 
-@app.route("/api/decisions", methods=["POST"])
-def record_decision():
-    data = request.json or {}
-    stance = data.get("stance", "YES")
-    question = data.get("question", "Should public profiles be indexed by Google?")
+@app.route("/api/agents", methods=["GET"])
+def get_agents():
+    return jsonify([
+        {"id": "AGENT-01", "name": "Engineering Agent", "role": "Staff Engineer", "status": "Working", "task": "Visibility regression tests", "model": "Hermes-2-Pro-Llama-3-8B"},
+        {"id": "AGENT-02", "name": "Product Agent", "role": "Product Guardian", "status": "Reviewing", "task": "Beta checklist review", "model": "Hermes-2-Pro-Llama-3-8B"},
+        {"id": "AGENT-03", "name": "QA Agent", "role": "Quality Assurance", "status": "Working", "task": "Cross-surface test suite", "model": "Hermes-2-Pro-Llama-3-8B"},
+        {"id": "AGENT-04", "name": "Design Agent", "role": "Design Systems Lead", "status": "Available", "task": "Ready for tasks", "model": "Hermes-2-Pro-Llama-3-8B"}
+    ])
+
+@app.route("/api/tasks", methods=["GET"])
+def get_tasks():
+    return jsonify([t.dict() for t in task_engine.tasks.values()])
+
+@app.route("/api/knowledge", methods=["GET"])
+def get_knowledge():
     return jsonify({
-        "status": "success",
-        "stance": stance,
-        "question": question,
-        "recorded_by": "Founder",
-        "authority_level": "A1_APPROVED"
+        "authority_map": os_loader.get_authority_map(),
+        "visibility_policy": os_loader.get_visibility_policy(),
+        "risk_register": os_loader.get_risk_register()
     })
 
 @app.route("/")
