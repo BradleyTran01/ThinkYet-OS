@@ -6,6 +6,7 @@ import sys
 # Connect directly to Hermes Core modules
 from prompter import PromptManager
 from utils import validate_and_extract_tool_calls, get_assistant_message
+from company.goals.engine import GoalEngine, GoalContract, Milestone
 from company.os.loader import ThinkYetOSLoader
 from company.authority.resolver import AuthorityResolver
 from company.tools.gateway import ToolCapabilityGateway, ToolPermission
@@ -21,6 +22,11 @@ authority_resolver = AuthorityResolver()
 context_compiler = ContextCompiler(os_loader)
 tool_gateway = ToolCapabilityGateway()
 task_engine = TaskEngine()
+goal_engine = GoalEngine()
+
+@app.route("/api/goals", methods=["GET"])
+def get_goals():
+    return jsonify(goal_engine.get_all_goals())
 
 @app.route("/")
 def index():
