@@ -32,9 +32,21 @@ class ThinkYetOSApp:
         # Header
         header_frame = tk.Frame(self.root, bg="#181825", padx=10, pady=10)
         header_frame.pack(fill="x")
+
+        # Load Logo
+        logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
+        if os.path.exists(logo_path):
+            try:
+                from PIL import Image, ImageTk
+                img = Image.open(logo_path).resize((40, 40), Image.Resampling.LANCZOS)
+                self.logo_img = ImageTk.PhotoImage(img)
+                logo_label = tk.Label(header_frame, image=self.logo_img, bg="#181825")
+                logo_label.pack(side="left", padx=(0, 10))
+            except Exception:
+                pass
         
         title_label = tk.Label(header_frame, text="ThinkYet OS", font=("Helvetica", 18, "bold"), fg="#89B4FA", bg="#181825")
-        title_label.pack(side="left", padx=10)
+        title_label.pack(side="left", padx=5)
 
         subtitle_label = tk.Label(header_frame, text="AI Company Runtime v1.0", font=("Helvetica", 11), fg="#A6ADC8", bg="#181825")
         subtitle_label.pack(side="left")
