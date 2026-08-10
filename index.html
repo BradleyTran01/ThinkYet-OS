@@ -3,228 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThinkYet OS — AI Company Runtime</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>ThinkYet OS — Hermes Agent Harness</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.js"></script>
     <style>
         :root {
-            --bg-base: #0f111a;
-            --bg-surface: #181a26;
-            --bg-card: #212436;
-            --border: #2e324a;
-            --accent-blue: #89b4fa;
-            --accent-purple: #cba6f7;
-            --text-main: #cdd6f4;
-            --text-muted: #a6adc8;
+            --bg-sidebar: #171717;
+            --bg-chat: #212121;
+            --bg-card: #2f2f2f;
+            --bg-input: #2f2f2f;
+            --border: #383838;
+            --accent: #89b4fa;
+            --text-primary: #ececec;
+            --text-secondary: #b4b4b4;
+            --text-muted: #8e8e8e;
+            --user-msg-bg: #2f2f2f;
+            --agent-msg-bg: #212121;
             --green: #a6e3a1;
-            --yellow: #f9e2af;
+            --purple: #cba6f7;
+            --orange: #fab387;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-base);
-            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-chat);
+            color: var(--text-primary);
             height: 100vh;
             display: flex;
-            flex-direction: column;
+            overflow: hidden;
         }
 
-        header {
-            background-color: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 24px;
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+
+        .brand {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            padding: 12px 8px;
+            margin-bottom: 12px;
         }
 
-        .logo-img {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(137, 180, 250, 0.2);
+        .brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
         }
 
-        .title-group h1 {
-            font-size: 1.25rem;
+        .brand-title {
+            font-size: 1rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-primary);
         }
 
-        .title-group p {
-            font-size: 0.85rem;
+        .brand-subtitle {
+            font-size: 0.7rem;
             color: var(--text-muted);
         }
 
-        main {
+        .new-chat-btn {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .new-chat-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+        .sidebar-section {
+            margin-top: 24px;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 8px 8px 8px;
+        }
+
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .agent-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .agent-item:hover, .agent-item.active {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .agent-badge {
+            margin-left: auto;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(137, 180, 250, 0.15);
+            color: var(--accent);
+        }
+
+        /* Main Chat Area */
+        .chat-container {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .chat-header {
+            height: 60px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background-color: var(--bg-chat);
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--bg-sidebar);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .chat-feed {
+            flex: 1;
+            overflow-y: auto;
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-width: 1200px;
+            gap: 24px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            max-width: 850px;
             margin: 0 auto;
             width: 100%;
         }
 
-        .card {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
 
-        .card-header {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--accent-blue);
+        .user-avatar { background-color: #585b70; color: #fff; }
+        .hermes-avatar { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #11111b; }
+
+        .msg-content {
+            flex: 1;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .msg-header {
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 6px;
         }
 
-        .input-group {
-            display: flex;
-            gap: 12px;
-        }
+        .msg-author { font-weight: 600; font-size: 0.9rem; }
+        .msg-time { font-size: 0.75rem; color: var(--text-muted); }
 
-        input[type="text"] {
-            flex: 1;
-            background-color: var(--bg-card);
+        /* Thought & Tool Trace Blocks */
+        .trace-card {
+            background-color: #181818;
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 12px 16px;
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
+            margin: 12px 0;
+            overflow: hidden;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--accent-blue);
-        }
-
-        button {
-            background: linear-gradient(135deg, var(--accent-blue), #74c7ec);
-            color: #11111b;
+        .trace-header {
+            background-color: #262626;
+            padding: 8px 12px;
+            font-size: 0.8rem;
             font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
+        .trace-body {
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--green);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
 
-        .secondary-btn {
-            background: var(--bg-card);
-            color: var(--text-main);
+        /* Input Area */
+        .input-container {
+            padding: 16px 24px 24px 24px;
+            max-width: 850px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .input-box {
+            background-color: var(--bg-input);
             border: 1px solid var(--border);
-        }
-
-        .secondary-btn:hover { background: #2a2d45; }
-
-        .terminal-container {
-            flex: 1;
+            border-radius: 12px;
+            padding: 12px 16px;
             display: flex;
             flex-direction: column;
-            min-height: 350px;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .terminal {
-            flex: 1;
-            background-color: #090a0f;
+        textarea {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            height: 48px;
+            outline: none;
+        }
+
+        .input-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chip-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: var(--green);
-            overflow-y: auto;
-            white-space: pre-wrap;
-            line-height: 1.5;
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .log-entry { margin-bottom: 6px; }
-        .log-info { color: var(--accent-blue); }
-        .log-warn { color: var(--yellow); }
-        .log-success { color: var(--green); }
+        .chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .send-btn {
+            background: var(--accent);
+            color: #11111b;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <img src="logo.png" alt="ThinkYet OS Logo" class="logo-img">
-        <div class="title-group">
-            <h1>ThinkYet OS Dashboard</h1>
-            <p>AI Company Runtime Substrate • Phase 1 Thin Foundation</p>
-        </div>
-    </header>
 
-    <main>
-        <div class="card">
-            <div class="card-header">⚡ Bảng Điều Khiển Goal & Task</div>
-            <div class="input-group">
-                <input type="text" id="goalInput" value="Kiểm tra và xác thực Visibility Gate cho Comments API">
-                <button onclick="runTask()">🚀 Chạy Task Lifecycle</button>
-                <button class="secondary-btn" onclick="checkPolicy()">🔍 Kiểm tra OS Policy</button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="brand">
+            <img src="logo.png" alt="ThinkYet Logo">
+            <div>
+                <div class="brand-title">ThinkYet OS</div>
+                <div class="brand-subtitle">Hermes AI Runtime</div>
             </div>
         </div>
 
-        <div class="card terminal-container">
-            <div class="card-header">🖥️ Nhật ký Runtime Log (Real-time)</div>
-            <div class="terminal" id="terminalLog">
-                <div class="log-entry log-info">[SYSTEM] ThinkYet OS Dashboard initialized.</div>
-                <div class="log-entry log-info">[OS LOADER] Loaded Machine Artifacts: AUTHORITY_MAP.yaml, AGENT_ROUTING.yaml, RISK_REGISTER.yaml</div>
-                <div class="log-entry log-success">[READY] Runtime engine connected & waiting for Founder Goal...</div>
+        <button class="new-chat-btn">
+            <span>+ New Task Session</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">⌘K</span>
+        </button>
+
+        <div class="sidebar-section">
+            <div class="section-title">Active AI Agents</div>
+            <div class="agent-list">
+                <div class="agent-item active">
+                    <span>👑 Chief of Staff</span>
+                    <span class="agent-badge">Active</span>
+                </div>
+                <div class="agent-item">
+                    <span>🛡️ Product Guardian</span>
+                    <span class="agent-badge">A3 Policy</span>
+                </div>
+                <div class="agent-item">
+                    <span>💻 Staff Engineer</span>
+                    <span class="agent-badge">Runtime</span>
+                </div>
+                <div class="agent-item">
+                    <span>🔍 Independent Reviewer</span>
+                    <span class="agent-badge">QA Gate</span>
+                </div>
             </div>
         </div>
-    </main>
+
+        <div class="sidebar-section">
+            <div class="section-title">Canonical Artifacts</div>
+            <div class="agent-list">
+                <div class="agent-item">📄 AUTHORITY_MAP.yaml</div>
+                <div class="agent-item">📄 AGENT_ROUTING.yaml</div>
+                <div class="agent-item">📄 RISK_REGISTER.yaml</div>
+                <div class="agent-item">📄 CONFLICT_REGISTER.yaml</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="model-selector">
+                <span style="color: var(--accent);">✦</span>
+                <span>Hermes-2-Pro-Llama-3-8B (ThinkYet Harness)</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--green); font-weight: 500;">
+                ● OS Loader Ready (A0–A7 Rules Active)
+            </div>
+        </div>
+
+        <div class="chat-feed" id="chatFeed">
+            <!-- System Welcome Message -->
+            <div class="message">
+                <div class="avatar hermes-avatar">H</div>
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-author">Hermes ThinkYet Runtime</span>
+                        <span class="msg-time">Vừa xong</span>
+                    </div>
+                    <div>
+                        Xin chào Founder. Tôi là **Hermes ThinkYet Runtime** — hệ thống Agent Harness chuyên vận hành **ThinkYet OS**.
+                        <br><br>
+                        Tất cả các truy vấn của bạn sẽ được kiểm soát tự động bởi **OS Loader**, **Authority Resolver (A0-A7)** và **Tool Capability Gateway**.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Box -->
+        <div class="input-container">
+            <div class="input-box">
+                <textarea id="userInput" placeholder="Giao Goal hoặc câu lệnh cho Hermes ThinkYet Runtime..."></textarea>
+                <div class="input-controls">
+                    <div class="chip-group">
+                        <div class="chip" onclick="quickTask('Kiểm tra và xác thực Visibility Gate cho Comments API')">🔍 Check Comments Gate</div>
+                        <div class="chip" onclick="quickTask('Biên dịch KNOWLEDGE_PACK cho Task mới')">📦 Compile Knowledge Pack</div>
+                        <div class="chip" onclick="quickTask('Chạy Audit các xung đột A0-A7 trong Conflict Register')">⚔️ Resolve Conflicts</div>
+                    </div>
+                    <button class="send-btn" onclick="sendMessage()">➔</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        function appendLog(msg, type = 'info') {
-            const terminal = document.getElementById('terminalLog');
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
-            entry.textContent = msg;
-            terminal.appendChild(entry);
-            terminal.scrollTop = terminal.scrollHeight;
+        function quickTask(text) {
+            document.getElementById('userInput').value = text;
+            sendMessage();
         }
 
-        function checkPolicy() {
-            appendLog("\n--- THINKYET OS VISIBILITY INVARIANTS ---", "warn");
-            appendLog("• feed_visibility: HIDE_YES_NO_PERCENTAGE_AND_GATED_COMMENTS", "info");
-            appendLog("• detail_visibility_before_stance: HIDE_GATED_COMMENTS_AND_PERCENTAGE", "info");
-            appendLog("• detail_visibility_after_stance: UNLOCK_CANONICAL_RESULTS_AND_DISCUSSION", "success");
-        }
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
 
-        function runTask() {
-            const goal = document.getElementById('goalInput').value;
-            appendLog(`\n[GOAL ENGINE] Received Goal: "${goal}"`, "warn");
-            
-            setTimeout(() => {
-                appendLog("[TASK ENGINE] Task Created: TASK-WEB-01 | State: QUEUED", "info");
-            }, 300);
+            const feed = document.getElementById('chatFeed');
 
-            setTimeout(() => {
-                appendLog("[TASK ENGINE] State -> RUNNING", "info");
-                appendLog("[CONTEXT COMPILER] Compiled Knowledge Pack (15360 bytes budget limit)", "info");
-            }, 800);
+            // Append User Message
+            const userMsgHtml = `
+                <div class="message">
+                    <div class="avatar user-avatar">F</div>
+                    <div class="msg-content">
+                        <div class="msg-header">
+                            <span class="msg-author">Founder</span>
+                            <span class="msg-time">Vừa xong</span>
+                        </div>
+                        <div>${text}</div>
+                    </div>
+                </div>
+            `;
+            feed.insertAdjacentHTML('beforeend', userMsgHtml);
+            input.value = '';
+            feed.scrollTop = feed.scrollHeight;
 
+            // Simulate Hermes Multi-Agent Reasoning & Tool Calls
             setTimeout(() => {
-                appendLog("[TOOL GATEWAY] Permission check for 'repo.read': ALLOWED=True", "info");
-                appendLog("[TASK ENGINE] State -> REVIEW (Independent Reviewer audit)", "warn");
-            }, 1400);
+                const traceHtml = `
+                    <div class="message">
+                        <div class="avatar hermes-avatar">H</div>
+                        <div class="msg-content">
+                            <div class="msg-header">
+                                <span class="msg-author">Hermes ThinkYet Runtime</span>
+                                <span class="msg-time">Đang xử lý...</span>
+                            </div>
 
-            setTimeout(() => {
-                appendLog("[TASK ENGINE] State -> ACCEPTED (Goal execution successful & verified)", "success");
-                appendLog("[EVIDENCE] Artifacts & diffs attached successfully.", "success");
-            }, 2000);
+                            <div class="trace-card">
+                                <div class="trace-header">⚙️ TOOL CALL: ContextCompiler.compile_knowledge_pack()</div>
+                                <div class="trace-body">
+{
+  "task_scope": "apps/web/comments",
+  "agent_role": "Staff Engineer",
+  "visibility_invariants": {
+    "feed_visibility": "HIDE_YES_NO_PERCENTAGE_AND_GATED_COMMENTS",
+    "detail_visibility_before_stance": "HIDE_GATED_COMMENTS_AND_PERCENTAGE"
+  },
+  "max_context_bytes": 15360
+}
+                                </div>
+                            </div>
+
+                            <div class="trace-card">
+                                <div class="trace-header">🛡️ TOOL GATEWAY: validate_tool_execution(permission="repo.read")</div>
+                                <div class="trace-body">➜ RESULT: ALLOWED=True (RBAC Check Passed)</div>
+                            </div>
+
+                            <div>
+                                Đã hoàn thành xử lý cho Goal: **"${text}"**.
+                                <br><br>
+                                ✅ **Kết quả kiểm tra:**
+                                <ul>
+                                    <li>Đã kích hoạt **Task Engine**: Trạng thái task chuyển thành <code>ACCEPTED</code>.</li>
+                                    <li>Đã áp dụng quy tắc **A3 Visibility Invariant**: Không leak nội dung gated comment trước khi người dùng chọn stance.</li>
+                                    <li>Tất cả bằng chứng (Evidence) đã được ghi lại trong <b>Run History</b>.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                feed.insertAdjacentHTML('beforeend', traceHtml);
+                feed.scrollTop = feed.scrollHeight;
+            }, 1000);
         }
     </script>
 </body>
